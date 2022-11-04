@@ -1,0 +1,104 @@
+---
+title: "สิ่งที่ได้เรียนจากวิชานี้"
+output: 
+  html_document:
+    theme: 
+      bg: "#F8F8FF"
+      fg: "#000000"
+      base_font:
+        google: "Prompt"
+---
+
+**1.จำนวนปีที่ได้รับการศึกษาของประชากรวัยแรงงานระดับจังหวัด ช่วงปี พ.ศ.2556-2560 และช่วงปี พ.ศ. 2560-2564**
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(gapminder)
+library(dplyr) # manipulate data
+library(gridExtra) # generate grid panel
+library(ggrepel)
+
+dat <- read_excel("~/Documents/จำนวนปีที่ได้รับการศึกษา.xlsx")
+
+temp <- dat %>% pivot_longer(cols = 2:10, names_to = "year",
+                             values_to = "mean_year")
+
+ggplot(data = temp %>% filter(year %in% c("2556","2560","2564"))
+       , aes(x=year,y=mean_year,group=province))+
+  geom_line(col="grey",alpha=0.5)+
+  geom_hline(yintercept = 10.15, 
+               linetype="dotted",
+               col="grey",size=0.7)+
+  theme_minimal()+
+  ylab("จำนวนปีที่ได้รับการศึกษาโดยเฉลี่ย")+
+  xlab("")+
+  geom_line(data = dat %>% 
+               mutate(progress1=ifelse(`2560`-`2556`<0,1,0)) %>%
+                         pivot_longer(cols = 2:10, names_to = "year",
+                                      values_to = "mean_year") %>%
+              filter(year %in% c("2556","2560"),progress1==1),
+              col="#D94008")+
+  geom_line(data = dat %>% 
+              mutate(progress2=ifelse(`2564`-`2560`>0,1,0)) %>%
+              pivot_longer(cols = 2:10, names_to = "year",
+                           values_to = "mean_year") %>%
+              filter(year %in% c("2560","2564"),progress2==1),
+            col="#135490")+
+  scale_y_continuous(breaks=c(6,8,10,12),
+                     limits=c(5,12))+
+  scale_x_discrete(breaks=c("2556","2560","2564"))+
+  geom_segment(aes(x="2560", xend="2564", y=5, yend=5),col="black", 
+               arrow=arrow(length=unit(0.2,"cm")))+
+  geom_point(aes(x="2560", y=5),pch=16, size=2, col="black")+
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())+
+  geom_text_repel(data=temp%>%filter(year==2564),
+                  aes(label = province),
+                  size = 4,
+                  direction = "y",
+                  xlim = c("2564",NA),
+                  hjust = 1,
+                  segment.size = .7,
+                  segment.alpha = .7,
+                  segment.linetype = "dotted",
+                  box.padding = .4,
+                  segment.curvature = -0.2,
+                  segment.ncp = 3,
+                  segment.angle = 20)+
+  annotate(geom="text", x="2565", y=10.4, label="เกณฑ์เป้าหมาย ช่วงปี 60-64",
+           size=3, col="black", alpha=0.7)+
+  annotate(geom="text",x="2557", y=5, label="ก่อนดำเนินงานตามแผนการศึกษาแห่งชาติ ฯ",
+           size=4, vjust=-1, fontface="bold")+
+  annotate(geom="text",x="2561", y=5, label="ระหว่างดำเนินงานตามแผนการศึกษาแห่งชาติ ฯ",
+           size=4, vjust=-1, fontface="bold")
+```
+  ผลสรุปจากทัศนะภาพนี้คือการเปรียบเทียบระหว่างจำนวนปีการศึกษาโดยเฉลี่ยของประชากรก่อนดำเนินงานตามแผนการศึกษาแห่งชาติฯเปรียบเทียบกับจำนวนปีการศึกษาโดยเฉลี่ยของประชากร
+ระหว่างดำเนินตามแผนการศึกษาแห่งชาติฯ ซึ่งจะสังเกตุได้ว่าการมีการดำเนินแผนการศึกษาแห่งชาติฯช่วยเพิ่มจำนวนปีการศึกษาของประชากรอย่างมาก โดยดูได้จากเส้นสีแดงที่ไม่มีแผนการศึกษาแห่งชาติฯมีการลดลงของจำนวนปีการศึกษาอยู่หลายจังฟวัด แต่พอมีแผนดังกล่าวจะเห็นว่าประชากรมีค่าฉลี่ยของปีที่ตนเองศึกษาเพิ่มขึ้นในหลายจังหวัดซึ่งจะดูได้จากเส้นสีน้ำเงิน \
+\
+**2.ข้อมูลสถิติภายหลังสำเร็จการศึกษาของนักเรียนทุน**\
+**โครงการหนึ่งอำเภอหนึ่ง รุ่นที่1-4จำแนกประเภทการประกอบอาชีพ**
+
+```{r}
+library(jpeg)
+library(grid)
+img <- readJPEG("/Users/non-macbook/Documents/Datavisual.jpg")
+ grid.raster(img)
+```
+งานนี้เป็นงานที่ได้ทำตอนข้อสอบมิดเทอม ซึ่งให้แก้งานVisualizationอันเก่าให้สมบูรณ์มากขึ้น โดยทัศนภาพนี้แสดงถึงสัดส่วนของอาชีพที่นักเรียนทุนได้ไปทำต่อหลังจากจบการศึกษา
+
+
+**3.ความสามารถการใช้เทคโนโลยีของผู้สอน**
+
+
+```{r}
+library(png)
+library(grid)
+img <- readPNG("/Users/non-macbook/Documents/Picture3.png")
+ grid.raster(img)
+```
+
+  ทัศนะภาพดังกล่าวเป็นการเปรียบเทียบสัดส่วนของความคล่องแคล่วของเทคโนโลยีทั้ง 3 ระดับของผู้สอน จากภาพจะเห็นได้ว่าผู้สอนในมหาลัยมีสัดส่วนของการใช้เทคโนโลยีไม่คล่องแคล่วเยอะกว่ามาก และสัดส่วนของครูระดับมัธยมจะสูงขึ้นเรื่อย ๆ ตามระดับความถนัดทางเทคโนโลยี ดังนั้นกระทรวงการศึกษาอาจจะต้องรีบแก้ปัญหาระดับความสามารถในการใช้เทคโนโลยีของครูผู้สอนในระดับมหาวิทยาลัย
+
