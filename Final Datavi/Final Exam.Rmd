@@ -1,0 +1,571 @@
+---
+title: "Score"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    theme: 
+      bg: "#F7F6F6"
+      fg: "#060403"
+      base_font:
+        google: "Prompt"
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(gapminder)
+library(dplyr) # manipulate data
+library(gridExtra) # generate grid panel
+
+
+```
+Overall
+==================================
+Column {data-height=100}
+-----------------------------------------------------------------------
+Homewok Score
+```{r}
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+dat$Hw_Average<-round(dat$Hw_Average, 2)
+temp2<-dat%>%pivot_longer(cols=20:33, names_to = "Hw",values_to = "Hw_Score")
+
+Homework<-temp2%>%summarise(hwscore=mean(Hw_Score))
+
+gauge(value= Homework$hwscore,
+min=0,
+max=10,
+gaugeSectors(success=c(7,10),warning = c(4,6),danger=c(0,3),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+
+
+
+```
+Project Score
+```{r}
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+Project<-dat%>%summarise(pjscore=mean(project1))
+
+gauge(value = Project$pjscore,
+min=0,
+max=10,
+gaugeSectors(success=c(7,10),warning = c(4,6),danger=c(0,3),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+
+```
+
+
+Midterm score
+```{r}
+
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+temp<-dat%>%pivot_longer(cols=6:19, names_to = "week",values_to = "hours")
+
+temp$week <- factor(temp$week, levels=1:14)
+
+
+midterm<-temp%>%summarise(midtermscore=mean(Mid_Total))
+
+gauge(value=midterm$midtermscore,
+min=0,
+max=60,
+gaugeSectors(success=c(40,60),warning = c(21,39),danger=c(0,20),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+```
+
+Final Score
+```{r}
+final<-temp%>%summarise(finalscore=mean(Final_Total))
+
+gauge(value=final$finalscore,
+min=0,
+max=60,
+gaugeSectors(success=c(40,60),warning = c(21,39),danger=c(0,20),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+```
+
+
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+
+### Project Score
+```{r}
+ggplot(temp2)+
+   geom_density(aes(x=project1),fill="#9FE2BF",alpha=0.6)+
+    ggtitle("Score")+
+  theme_minimal()+
+    theme(legend.position = "top")+
+  ggtitle(label = "Project Score Distribution")+
+  xlab("Project Score")
+
+
+```
+
+
+
+### Midterm - Final Score
+
+```{r}
+ggplot(dat)+
+    geom_density(aes(x=Mid_Total),fill= "#CD5C5C",alpha=0.6)+
+   geom_density(aes(x=Final_Total),fill = "#6495ED",alpha=0.6)+
+    ggtitle("Midterm and Final Score Distribution")+
+  theme_minimal()+
+    theme(legend.position = "top")+
+  geom_label(aes(x = 51, y = 0.020, label = "Midterm Score"), size=3)+
+  geom_label(aes(x = 20, y = 0.020, label = "Final Score"), size=3)+
+  xlab("Midterm - Final Score")+
+  ylab("density")
+  
+  
+
+
+```
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+
+### Attendance
+
+```{r}
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(gapminder)
+library(dplyr) # manipulate data
+library(gridExtra) # generate grid panel
+
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+dat$Hw_Average<-round(dat$Hw_Average, 2)
+
+temp<-dat%>%pivot_longer(cols=6:19, names_to = "week",values_to = "hours")
+
+temp$week <- factor(temp$week, levels= 1:14)
+
+
+ggplot(temp%>%
+  group_by(week)%>%summarise(mean_hours=mean(hours)),aes(x=week,y= mean_hours,group=1))+geom_line()+geom_point()+
+  theme_minimal()+
+    theme(legend.position = "top")+
+    ggtitle("Average Attendance Hours")+
+  xlab("Week")+
+  ylab("Average Attendance Hours")
+
+
+  
+
+```
+
+
+
+### Homework Score
+```{r}
+dat2<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet3")
+
+dat$Hw_Average<-round(dat$Hw_Average, 2)
+
+temp2<-dat2%>%pivot_longer(cols=20:33, names_to = "Hw",values_to = "Hw_Score")
+
+
+temp2$Hw <- factor(temp2$Hw, levels = 1:14)
+
+
+ggplot(temp2%>%
+  group_by(Hw)%>%summarise(mean_Hwsc=mean(Hw_Score)),aes(x=Hw,y= mean_Hwsc ,group=1))+geom_line()+geom_point()+
+  theme_minimal()+
+    theme(legend.position = "top")+
+    ggtitle("Average Homework Score Each Week")+
+  xlab("Homework")+
+  ylab("Average Homework Score")+
+scale_y_continuous(limits=c(0,10), breaks=c(0,2,4,6,8,10), label=c("0","2","4","6","8","10"))
+
+
+
+
+
+
+```
+
+
+Section4 {data-navmenu=Section}
+========================================
+
+Column {data-height=100}
+-----------------------------------------------------------------------
+Homewok Score
+```{r}
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+dat$Hw_Average<-round(dat$Hw_Average, 2)
+
+temp2<-dat%>%pivot_longer(cols=20:33, names_to = "Hw",values_to = "Hw_Score")
+
+Homework<-temp2%>%filter(section==4)%>%summarise(hwscore=mean(Hw_Score))
+
+gauge(value= Homework$hwscore,
+min=0,
+max=10,
+gaugeSectors(success=c(7,10),warning = c(4,6),danger=c(0,3),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+
+
+
+```
+
+Project Score
+```{r}
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+Project<-dat%>%filter(section==4)%>%summarise(pjscore=mean(project1))
+
+gauge(value = Project$pjscore,
+min=0,
+max=10,
+gaugeSectors(success=c(7,10),warning = c(4,6),danger=c(0,3),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+
+```
+
+
+Midterm score
+```{r}
+
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+temp<-dat%>%pivot_longer(cols=6:19, names_to = "week",values_to = "hours")
+
+temp$week <- factor(temp$week, levels=1:14)
+
+
+midterm<-temp%>%filter(section==4)%>%summarise(midtermscore=mean(Mid_Total))
+
+gauge(value=midterm$midtermscore,
+min=0,
+max=60,
+gaugeSectors(success=c(40,60),warning = c(21,39),danger=c(0,20),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+```
+
+Final Score
+```{r}
+final<-temp%>%filter(section==4)%>%summarise(finalscore=mean(Final_Total))
+
+gauge(value=final$finalscore,
+min=0,
+max=60,
+gaugeSectors(success=c(40,60),warning = c(21,39),danger=c(0,20),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+```
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+
+### Project Score
+```{r}
+ggplot(temp2%>%filter(section==4))+
+   geom_density(aes(x=project1),fill = "#9FE2BF",alpha=0.6)+
+  theme_minimal()+
+    theme(legend.position = "top")+
+  ggtitle(label = "Project Score Distribution")+
+  xlab("Project Score")
+
+
+```
+
+### Midterm - Final Score
+
+```{r}
+ggplot(dat%>%filter(section==4))+
+    geom_density(aes(x=Mid_Total),fill= "#CD5C5C",alpha=0.6)+
+   geom_density(aes(x=Final_Total),fill = "#6495ED",alpha=0.6)+
+    ggtitle("Midterm and Final Score Distribution")+
+  theme_minimal()+
+    theme(legend.position = "top")+
+  geom_label(aes(x = 51, y = 0.020, label = "Midterm Score"), size=3)+
+  geom_label(aes(x = 20, y = 0.020, label = "Final Score"), size=3)+
+  xlab("Midterm - Final Score")+
+  ylab("density")
+
+
+```
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+
+### Attendance
+
+```{r}
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(gapminder)
+library(dplyr) # manipulate data
+library(gridExtra) # generate grid panel
+
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+temp<-dat%>%pivot_longer(cols=6:19, names_to = "week",values_to = "hours")
+
+temp$week <- factor(temp$week, levels= 1:14)
+
+
+ggplot(temp%>%
+  group_by(week)%>%filter(section==4)%>%summarise(mean_hours=mean(hours)),aes(x=week,y= mean_hours,group=1))+geom_line()+geom_point()+
+  theme_minimal()+
+    theme(legend.position = "top")+
+    ggtitle("Average Attendance Hours")+
+  xlab("Week")+
+  ylab("Average Attendance Hours")
+
+
+  
+
+```
+
+
+### Homework Score
+```{r}
+dat2<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet3")
+
+temp2<-dat2%>%pivot_longer(cols=20:33, names_to = "Hw",values_to = "Hw_Score")
+
+temp2$Hw <- factor(temp2$Hw, levels = 1:14)
+
+
+ggplot(temp2%>%
+  group_by(Hw)%>%filter(section==4)%>%summarise(mean_Hwsc=mean(Hw_Score)),aes(x=Hw,y= mean_Hwsc ,group=1))+geom_line()+geom_point()+
+  theme_minimal()+
+    theme(legend.position = "top")+
+    ggtitle("Average Homework Score Each Week")+
+  xlab("Homework")+
+  ylab("Average Homework Score")+
+scale_y_continuous(limits=c(0,10), breaks=c(0,2,4,6,8,10), label=c("0","2","4","6","8","10"))
+
+
+
+
+
+
+```
+
+
+Section5 {data-navmenu=Section}
+========================================
+
+Column {data-height=100}
+-----------------------------------------------------------------------
+Homewok Score
+```{r}
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+temp2<-dat%>%pivot_longer(cols=20:33, names_to = "Hw",values_to = "Hw_Score")
+
+Homework<-temp2%>%filter(section==5)%>%summarise(hwscore=mean(Hw_Score))
+
+gauge(value= Homework$hwscore,
+min=0,
+max=10,
+gaugeSectors(success=c(7,10),warning = c(4,6),danger=c(0,3),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+
+
+
+```
+
+Project Score
+```{r}
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+Project<-dat%>%filter(section==5)%>%summarise(pjscore=mean(project1))
+
+gauge(value = Project$pjscore,
+min=0,
+max=10,
+gaugeSectors(success=c(7,10),warning = c(4,6),danger=c(0,3),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+
+```
+
+
+Midterm score
+```{r}
+
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+temp<-dat%>%pivot_longer(cols=6:19, names_to = "week",values_to = "hours")
+
+temp$week <- factor(temp$week, levels=1:14)
+
+
+midterm<-temp%>%filter(section==5)%>%summarise(midtermscore=mean(Mid_Total))
+
+gauge(value=midterm$midtermscore,
+min=0,
+max=60,
+gaugeSectors(success=c(40,60),warning = c(21,39),danger=c(0,20),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+
+```
+
+Final Score
+```{r}
+final<-temp%>%filter(section==5)%>%summarise(finalscore=mean(Final_Total))
+
+gauge(value=final$finalscore,
+min=0,
+max=60,
+gaugeSectors(success=c(40,60),warning = c(21,39),danger=c(0,20),
+             colors = c("#41FA14", "#FFC44D", "#FB1414")))
+```
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+
+### Project Score
+```{r}
+ggplot(temp2%>%filter(section==5))+
+   geom_density(aes(x=project1),fill= "#9FE2BF",alpha=0.6)+
+  theme_minimal()+
+    theme(legend.position = "top")+
+  ggtitle(label = "Project Score Distribution")
+
+
+```
+
+### Midterm-Final Score
+
+```{r}
+ggplot(dat%>%filter(section==5))+
+    geom_density(aes(x=Mid_Total),fill= "#CD5C5C",alpha=0.6)+
+   geom_density(aes(x=Final_Total),fill = "#6495ED",alpha=0.6)+
+    ggtitle("Midterm and Final Score Distribution")+
+  theme_minimal()+
+    theme(legend.position = "top")+
+  geom_label(aes(x = 51, y = 0.015, label = "Midterm Score"), size=3)+
+  geom_label(aes(x = 17, y = 0.020, label = "Final Score"), size=3)+
+  xlab("Midterm - Final Score")+
+  ylab("density")
+  
+
+```
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+
+### Attendance
+
+```{r}
+library(readxl)
+library(tidyr)
+library(ggplot2)
+library(gapminder)
+library(dplyr) # manipulate data
+library(gridExtra) # generate grid panel
+
+dat<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet2")
+
+temp<-dat%>%pivot_longer(cols=6:19, names_to = "week",values_to = "hours")
+
+temp$week <- factor(temp$week, levels= 1:14)
+
+
+ggplot(temp%>%
+  group_by(week)%>%filter(section==5)%>%summarise(mean_hours=mean(hours)),aes(x=week,y= mean_hours,group=1))+geom_line()+geom_point()+
+  theme_minimal()+
+    theme(legend.position = "top")+
+    ggtitle("Average Attendance Hours")+
+  xlab("Week")+
+  ylab("Average Attendance Hours")
+    
+
+
+  
+
+```
+
+
+### Homework Score
+```{r}
+dat2<-read_excel("finalexam65.xlsx", 
+    sheet = "Sheet3")
+
+temp2<-dat2%>%pivot_longer(cols=20:33, names_to = "Hw",values_to = "Hw_Score")
+
+temp2$Hw <- factor(temp2$Hw, levels = 1:14)
+
+
+ggplot(temp2%>%
+  group_by(Hw)%>%filter(section==5)%>%summarise(mean_Hwsc=mean(Hw_Score)),aes(x=Hw,y= mean_Hwsc ,group=1))+geom_line()+geom_point()+
+  theme_minimal()+
+    theme(legend.position = "top")+
+    ggtitle("Average Homework Score Each Week")+
+  xlab("Homework")+
+  ylab("Average Homework Score")+
+  scale_y_continuous(limits=c(0,10), breaks=c(0,2,4,6,8,10), label=c("0","2","4","6","8","10"))
+  
+
+
+
+
+
+
+
+```
+
+Individual 
+========================================
+
+### ID
+```{r}
+
+library(shiny)
+library(DT)
+
+textInput(inputId = "StuID", label = "รหัสนิสิต", value = "", width = NULL, placeholder ="6240101929")
+
+
+```
+
+
+
+Column {data-height=250}
+-----------------------------------------------------------------------
+### Score
+```{r}
+
+library(shiny)
+library(DT)
+
+renderDataTable(dat%>%filter(ID==input$StuID)%>%select(Hw_Average,project1 ,Mid_Total,Final_Total))
+
+
+```
+

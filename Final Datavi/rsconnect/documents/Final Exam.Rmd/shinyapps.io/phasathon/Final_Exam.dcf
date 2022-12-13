@@ -1,0 +1,13 @@
+name: Final_Exam
+title: Final_Exam
+username:
+account: phasathon
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7882053
+bundleId: 6630928
+url: https://phasathon.shinyapps.io/Final_Exam/
+when: 1670922933.95287
+lastSyncTime: 1670922933.95288
+asMultiple: FALSE
+asStatic: FALSE
